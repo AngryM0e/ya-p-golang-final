@@ -57,7 +57,7 @@ func UpdateTaskHandler(w http.ResponseWriter, r *http.Request, database *db.DB) 
 	
 	//Format date
 	now := time.Now()
-	today := now.Format("20060102")
+	today := now.Format(dateFormat)
 
 	dateToUse := req.Date
 	if dateToUse == "" {
@@ -65,7 +65,7 @@ func UpdateTaskHandler(w http.ResponseWriter, r *http.Request, database *db.DB) 
 	}
 
 	// Check date format
-	parsedDate, err := time.Parse("20060102", dateToUse)
+	parsedDate, err := time.Parse(dateFormat, dateToUse)
 	if err != nil {
 		writeJSONError(w, "Invalid date format", http.StatusBadRequest)
 		return

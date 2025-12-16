@@ -13,13 +13,13 @@ import (
 
 func checkDate(task *db.Task) error {
 	now := time.Now()
-	today := now.Format("20060102")
-	
+	today := now.Format(dateFormat)
+
 	if task.Date == "" {
 		task.Date = today
 	}
 
-	t, err := time.Parse("20060102", task.Date)
+	t, err := time.Parse(dateFormat, task.Date)
 	if err != nil {
 		return err
 	}
@@ -35,27 +35,27 @@ func checkDate(task *db.Task) error {
 			if len(parts) != 2 {
 				return errors.New("invalid format dayli rule")
 			}
-			
+
 			// Parse days interval
 			interval, err := strconv.Atoi(parts[1])
 			if err != nil {
 				return errors.New("invalid days interval")
 			}
-			
+
 			if interval <= 0 {
 				return errors.New("interval must be more 0")
 			}
-			
+
 			if interval > 400 {
 				return errors.New("interval must be less 400")
 			}
 		}
-		
+
 		next, err := NextDate(now, task.Date, task.Repeat)
 		if err != nil {
 			return err
 		}
-		
+
 		if afterNow(now, t) {
 			task.Date = next
 		}
@@ -72,7 +72,7 @@ func checkDate(task *db.Task) error {
 func AddTask(w http.ResponseWriter, r *http.Request, database *db.DB) {
 	var task db.Task
 	if err := json.NewDecoder(r.Body).Decode(&task); err != nil {
-		writeJSONError(w,"JSON decode error", http.StatusBadRequest)
+		writeJSONError(w, "JSON decode error", http.StatusBadRequest)
 		return
 	}
 
@@ -84,7 +84,7 @@ func AddTask(w http.ResponseWriter, r *http.Request, database *db.DB) {
 		writeJSONError(w, "Invalid date", http.StatusBadRequest)
 		return
 	}
-	
+
 	id, err := database.AddTask(task)
 	if err != nil {
 		writeJSONError(w, "Adding task error", http.StatusInternalServerError)

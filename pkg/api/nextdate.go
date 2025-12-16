@@ -2,13 +2,12 @@ package api
 
 import (
 	"errors"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
 )
-
-const dateFormat = "20060102"
 
 // NextDate calculates the next execution date for a task
 func NextDate(now time.Time, dateStr string, repeat string) (string, error) {
@@ -264,9 +263,13 @@ func handleMonthlyRule(now, date time.Time, parts []string) (string, error) {
 	return "", errors.New("cannot find next date")
 }
 
-
 // nextDayHandler handles GET requests to /api/nextdate
 func nextDayHandler(w http.ResponseWriter, r *http.Request) {
+	// Check method
+	if r.Method != http.MethodGet {
+		writeJSONError(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
 	// Get parameters from query string
 	nowStr := r.URL.Query().Get("now")
 	dateStr := r.URL.Query().Get("date")
@@ -279,30 +282,33 @@ func nextDayHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Validate required parameters
 	if dateStr == "" {
-		http.Error(w, "Date parameter is required", http.StatusBadRequest)
+		writeJSONError(w, "Date parameter is required", http.StatusBadRequest)
 		return
 	}
 
 	if repeat == "" {
-		http.Error(w, "Repeat parameter is required", http.StatusBadRequest)
+		writeJSONError(w, "Repeat parameter is required", http.StatusBadRequest)
 		return
 	}
 
 	// Parse dates
 	nowTime, err := time.Parse(dateFormat, nowStr)
 	if err != nil {
-		http.Error(w, "Invalid date format for 'now' parameter", http.StatusBadRequest)
+		writeJSONError(w, "Invalid date format for 'now' parameter", http.StatusBadRequest)
 		return
 	}
 
 	// Calculate next date
 	nextDate, err := NextDate(nowTime, dateStr, repeat)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		writeJSONError(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	// Return result as plain text
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	if _, err := w.Write([]byte(nextDate)); err != nil {
+		log.Printf("Failed to write response: %v", err)
+	}
 	w.Write([]byte(nextDate))
 }

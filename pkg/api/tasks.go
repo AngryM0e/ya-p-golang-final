@@ -46,7 +46,7 @@ func tasksHandler(w http.ResponseWriter, r *http.Request, database *db.DB) {
 	}
 
 	// Getting tasks from database with limit 50
-	tasks, err := database.GetAllTasks(50)
+	tasks, err := database.GetAllTasks(limit)
 	if err != nil {
 		writeJSONError(w, "Error while getting tasks", http.StatusInternalServerError)
 		return

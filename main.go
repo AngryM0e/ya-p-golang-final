@@ -1,11 +1,14 @@
 package main
 
 import (
+	"fmt"
+	"net/http"
 	"log"
 	"os"
 	"path/filepath"
 	"strconv"
 
+	"github.com/AngryM0e/ya-p-golang-final/pkg/db"
 	"github.com/AngryM0e/ya-p-golang-final/pkg/server"
 )
 
@@ -35,7 +38,7 @@ func main() {
 	}
 
 	// Launch server
-	if err := server.Start(router, database, port); err != nil {
+	if err := Start(router, database, port); err != nil {
 		log.Fatal("Server start error:", err)
 	}
 }
@@ -72,4 +75,20 @@ func getAbsolutePath(filename string) string {
 		return filename
 	}
 	return absPath
+}
+
+func Start (router *http.ServeMux, database *db.DB, port int) error {
+	// Close database connection on exit
+	defer func() {
+		if err := database.Close(); err != nil {
+			log.Printf("Error closing database connection: %v", err)
+		} else {
+			log.Println("Database connection closed")
+		}
+	}()
+
+	addr := fmt.Sprintf(":%d", port)
+	log.Printf("Server launch on http://localhost:%d", port)
+	
+	return http.ListenAndServe(addr, router)
 }

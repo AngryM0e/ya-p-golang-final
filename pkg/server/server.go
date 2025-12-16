@@ -49,19 +49,3 @@ func NewServer(cfg Config) (*http.ServeMux, *db.DB, error) {
 
 	return router, database, nil
 }
-
-func Start (router *http.ServeMux, database *db.DB, port int) error {
-	// Close database connection on exit
-	defer func() {
-		if err := database.Close(); err != nil {
-			log.Printf("Error closing database connection: %v", err)
-		} else {
-			log.Println("Database connection closed")
-		}
-	}()
-
-	addr := fmt.Sprintf(":%d", port)
-	log.Printf("Server launch on http://localhost:%d", port)
-	
-	return http.ListenAndServe(addr, router)
-}

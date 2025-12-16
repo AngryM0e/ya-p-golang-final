@@ -6,6 +6,11 @@ import (
 	"github.com/AngryM0e/ya-p-golang-final/pkg/db"
 )
 
+const (
+	dateFormat = "20060102"
+	limit = 50
+)
+
 // Init initializes the API routes and handlers
 func Init(router *http.ServeMux, database *db.DB) {
 	router.HandleFunc("/api/signin", SignInHandler)

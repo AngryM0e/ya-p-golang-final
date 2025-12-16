@@ -25,7 +25,7 @@ func TestDone(t *testing.T) {
 
 	now := time.Now()
 	id := addTask(t, task{
-		date:  now.Format(`20060102`),
+		date:  now.Format(`dateFormat`),
 		title: "Свести баланс",
 	})
 
@@ -48,7 +48,7 @@ func TestDone(t *testing.T) {
 		err = db.Get(&task, `SELECT * FROM scheduler WHERE id=?`, id)
 		assert.NoError(t, err)
 		now = now.AddDate(0, 0, 3)
-		assert.Equal(t, now.Format(`20060102`), task.Date)
+		assert.Equal(t, now.Format(`dateFormat`), task.Date)
 	}
 }
 
